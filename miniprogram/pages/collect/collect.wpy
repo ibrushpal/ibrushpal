@@ -1,0 +1,75 @@
+<template>
+  <view class="container">
+    <!-- 问卷部分 -->
+    <questionnaire-form :questions="questions" @submit="handleSubmit" />
+    
+    <!-- 媒体上传 -->
+    <media-upload 
+      :max-count="3"
+      @success="handleUploadSuccess"
+      @fail="handleUploadFail"
+    />
+    
+    <!-- 预览区域 -->
+    <preview-panel 
+      :answers="formData.answers"
+      :media-list="formData.media"
+      @validate="handleValidate"
+    />
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import QuestionnaireForm from '@/components/QuestionnaireForm'
+import MediaUpload from '@/components/MediaUpload'
+import PreviewPanel from '@/components/PreviewPanel'
+
+export default class CollectPage extends wepy.page {
+  components = {
+    'questionnaire-form': QuestionnaireForm,
+    'media-upload': MediaUpload,
+    'preview-panel': PreviewPanel
+  }
+  
+  data = {
+    questions: [
+      {
+        id: 1,
+        type: 'radio',
+        title: '您每天刷牙几次？',
+        options: ['1次', '2次', '3次及以上']
+      },
+      // 更多问题...
+    ],
+    formData: {
+      answers: {},
+      media: []
+    }
+  }
+  
+  methods = {
+    handleSubmit(answers) {
+      this.formData.answers = answers
+      this.$apply()
+    },
+    
+    handleUploadSuccess(files) {
+      this.formData.media = files
+      this.$apply()
+    },
+    
+    handleValidate(valid) {
+      if (valid) {
+        // 提交数据
+      }
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.container {
+  padding: 20px;
+}
+</style>

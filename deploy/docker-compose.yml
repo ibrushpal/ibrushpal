@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ai-service:
+    image: pytorch/pytorch:1.12.1-cuda11.3-cudnn8-runtime
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    volumes:
+      - /opt/ibrushpal:/app
+      - /var/log/ibrushpal:/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: >
+      bash -c "cd /app && 
+      pip install -r requirements.txt &&
+      python main.py"

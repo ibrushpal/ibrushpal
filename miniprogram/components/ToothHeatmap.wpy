@@ -1,0 +1,92 @@
+<template>
+  <view class="heatmap-container">
+    <view class="title">牙齿清洁热力图</view>
+    <view class="heatmap">
+      <view 
+        v-for="(item, index) in data" 
+        :key="index" 
+        class="tooth" 
+        :style="{ backgroundColor: getColor(item.score) }"
+      >
+        <text class="label">{{item.tooth_id}}</text>
+      </view>
+    </view>
+    <view class="legend">
+      <view class="legend-item" v-for="(color, i) in colors" :key="i">
+        <view class="color-box" :style="{ backgroundColor: color }"></view>
+        <text class="label">{{i * 25}}%</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class ToothHeatmap extends wepy.component {
+  props = {
+    data: {
+      type: Array,
+      default: () => []
+    }
+  }
+  
+  data = {
+    colors: ['#ff4d4f', '#ff7a45', '#ffa940', '#ffc53d', '#ffd666', '#fff1b8']
+  }
+  
+  methods = {
+    getColor(score) {
+      const index = Math.min(Math.floor(score / 20), this.colors.length - 1)
+      return this.colors[index]
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.heatmap-container {
+  margin-bottom: 20px;
+  
+  .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .heatmap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    
+    .tooth {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+  }
+  
+  .legend {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 0 5px;
+      
+      .color-box {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+      }
+    }
+  }
+}
+</style>

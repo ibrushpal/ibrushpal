@@ -1,0 +1,97 @@
+<template>
+  <view class="visualization">
+    <!-- 热力图展示 -->
+    <tooth-heatmap :data="heatmapData" />
+    
+    <!-- 评分雷达图 -->
+    <score-radar :scores="radarData" />
+    
+    <!-- 推荐方案 -->
+    <view class="recommendation-section">
+      <view class="section-title">个性化建议</view>
+      <view class="recommendation-list">
+        <view v-for="(item, index) in recommendations" :key="index" class="recommendation-item">
+          <text class="type">{{item.type}}:</text>
+          <text class="content">{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import ToothHeatmap from './ToothHeatmap'
+import ScoreRadar from './ScoreRadar'
+
+export default class Visualization extends wepy.component {
+  components = {
+    'tooth-heatmap': ToothHeatmap,
+    'score-radar': ScoreRadar
+  }
+  
+  props = {
+    analysisData: {
+      type: Object,
+      default: () => ({})
+    }
+  }
+  
+  data = {
+    heatmapData: [],
+    radarData: {},
+    recommendations: []
+  }
+  
+  onPropsChanged() {
+    this.processData()
+  }
+  
+  methods = {
+    processData() {
+      // 处理热力图数据
+      this.heatmapData = this.analysisData.heatmap || []
+      
+      // 处理雷达图数据
+      this.radarData = {
+        cleanliness: this.analysisData.cleanliness_score || 0,
+        coverage: this.analysisData.brushing_coverage || 0,
+        duration: this.analysisData.brushing_duration || 0
+      }
+      
+      // 处理推荐方案
+      this.recommendations = [
+        { type: '必须', content: this.analysisData.recommendations?.must?.join('、') || '无' },
+        { type: '建议', content: this.analysisData.recommendations?.suggest?.join('、') || '无' }
+      ]
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.visualization {
+  padding: 20px;
+  
+  .recommendation-section {
+    margin-top: 30px;
+    
+    .section-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    
+    .recommendation-list {
+      .recommendation-item {
+        margin-bottom: 10px;
+        
+        .type {
+          font-weight: bold;
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+}
+</style>

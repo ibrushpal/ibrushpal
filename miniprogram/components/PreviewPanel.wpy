@@ -1,0 +1,120 @@
+<template>
+  <view class="preview-panel">
+    <view class="section">
+      <view class="title">问卷答案</view>
+      <view class="answers">
+        <view v-for="(value, key) in answers" :key="key" class="answer-item">
+          <text class="question">Q{{key}}:</text>
+          <text class="answer">{{value}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="title">上传的媒体</view>
+      <view class="media-thumbnails">
+        <view v-for="(item, index) in mediaList" :key="index" class="thumbnail">
+          <image v-if="item.type === 'image'" :src="item.url" mode="aspectFill" />
+          <video v-else :src="item.url"></video>
+        </view>
+      </view>
+    </view>
+    
+    <view class="validation-status">
+      <text :class="['status', { valid: isValid }]">
+        {{ isValid ? '✓ 数据完整' : '⚠ 请完成所有必填项' }}
+      </text>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class PreviewPanel extends wepy.component {
+  props = {
+    answers: {
+      type: Object,
+      default: () => ({})
+    },
+    mediaList: {
+      type: Array,
+      default: () => []
+    }
+  }
+  
+  computed = {
+    isValid() {
+      return Object.keys(this.answers).length > 0 && this.mediaList.length > 0
+    }
+  }
+  
+  methods = {
+    onLoad() {
+      this.$emit('validate', this.isValid)
+    },
+    
+    onShow() {
+      this.$emit('validate', this.isValid)
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.preview-panel {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  
+  .section {
+    margin-bottom: 15px;
+    
+    .title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  }
+  
+  .answers {
+    .answer-item {
+      margin-bottom: 8px;
+      
+      .question {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+    }
+  }
+  
+  .media-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      
+      image, video {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  
+  .validation-status {
+    text-align: center;
+    margin-top: 15px;
+    
+    .status {
+      color: #ff4d4f;
+      
+      &.valid {
+        color: #52c41a;
+      }
+    }
+  }
+}
+</style>

@@ -1,0 +1,54 @@
+<template>
+  <view class="questionnaire">
+    <view class="question" v-for="q in questions" :key="q.id">
+      <text class="title">{{q.title}}</text>
+      <!-- 根据问题类型渲染不同输入组件 -->
+      <radio-group v-if="q.type === 'radio'" @change="handleChange(q.id, $event)">
+        <label v-for="(opt, idx) in q.options" :key="idx">
+          <radio :value="opt" /> {{opt}}
+        </label>
+      </radio-group>
+      <!-- 其他问题类型... -->
+    </view>
+    <button @tap="submit">提交问卷</button>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class QuestionnaireForm extends wepy.component {
+  props = {
+    questions: {
+      type: Array,
+      default: () => []
+    }
+  }
+  
+  data = {
+    answers: {}
+  }
+  
+  methods = {
+    handleChange(qId, e) {
+      this.answers[qId] = e.detail.value
+    },
+    
+    submit() {
+      this.$emit('submit', this.answers)
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.question {
+  margin-bottom: 20px;
+  
+  .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+  }
+}
+</style>
