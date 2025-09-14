@@ -8,7 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title="iBrushPal AI API",
     description="口腔健康AI分析系统API",
-    version="0.1.0"
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 # 配置CORS
