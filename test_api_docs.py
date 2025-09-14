@@ -3,8 +3,13 @@
 API文档测试脚本
 """
 
-import requests
 import sys
+try:
+    import requests
+except ImportError:
+    print("requests模块未安装，使用urllib替代")
+    import urllib.request
+    import json
 
 def test_api_docs(host="http://localhost:8000"):
     """测试API文档端点"""
