@@ -1,0 +1,2 @@
+# 测试NVIDIA Docker是否正常工作
+sudo docker run --rm --gpus all nvidia/cuda:12.0-base nvidia-smi
