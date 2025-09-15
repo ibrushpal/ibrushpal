@@ -249,6 +249,102 @@ async def model_info():
     
     return info
 
+@app.get("/status-dashboard", response_class=HTMLResponse)
+async def status_dashboard(request: Request):
+    """状态面板页面"""
+    # 内嵌HTML内容
+    html_content = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务状态面板 - iBrushPal</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; }
+        .container { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-top: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .status-card { background: #f8f9fa; border-radius: 10px; padding: 20px; border-left: 4px solid #27ae60; }
+        .metric { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #e8f4f8; border-radius: 5px; }
+        .metric-value { font-weight: bold; color: #2c3e50; }
+        .btn { display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 20px; margin: 5px; transition: all 0.3s ease; }
+        .btn:hover { background: #5a6fd8; transform: translateY(-2px); }
+        .json-view { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 15px 0; }
+        .last-updated { text-align: center; color: #7f8c8d; margin-top: 30px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>📊 iBrushPal 服务状态面板</h1><p>实时监控API服务和AI模型运行状态</p></div>
+        <div class="status-cards">
+            <div class="status-card"><h3>✅ 服务健康状态</h3>
+                <div class="metric"><span>服务状态:</span><span class="metric-value" id="service-status">检测中...</span></div>
+                <div class="metric"><span>服务版本:</span><span class="metric-value" id="service-version">检测中...</span></div>
+                <div class="metric"><span>响应时间:</span><span class="metric-value" id="response-time">检测中...</span></div>
+            </div>
+            <div class="status-card"><h3>🤖 AI模型状态</h3>
+                <div class="metric"><span>模型类型:</span><span class="metric-value" id="model-type">检测中...</span></div>
+                <div class="metric"><span>模型状态:</span><span class="metric-value" id="model-status">检测中...</span></div>
+                <div class="metric"><span>检测方法:</span><span class="metric-value" id="detection-methods">检测中...</span></div>
+            </div>
+            <div class="status-card"><h3>📷 支持功能</h3>
+                <div class="metric"><span>图像格式:</span><span class="metric-value" id="supported-formats">检测中...</span></div>
+                <div class="metric"><span>最大文件大小:</span><span class="metric-value">10MB</span></div>
+                <div class="metric"><span>并发请求:</span><span class="metric-value">支持</span></div>
+            </div>
+        </div>
+        <div class="json-view"><h4>📋 原始API响应数据</h4>
+            <pre id="health-json">等待获取数据...</pre>
+            <pre id="model-json">等待获取数据...</pre>
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="/" class="btn">🏠 返回主页</a>
+            <a href="/docs" class="btn">📚 API文档</a>
+            <button onclick="refreshData()" class="btn">🔄 刷新状态</button>
+        </div>
+        <div class="last-updated">最后更新: <span id="last-updated">正在更新...</span></div>
+    </div>
+    <script>
+        async function fetchHealthData() {
+            const startTime = Date.now();
+            try {
+                const healthResponse = await fetch('/health');
+                const healthData = await healthResponse.json();
+                const modelResponse = await fetch('/model-info');
+                const modelData = await modelResponse.json();
+                const responseTime = Date.now() - startTime;
+                
+                document.getElementById('service-status').textContent = healthData.status;
+                document.getElementById('service-version').textContent = healthData.version;
+                document.getElementById('response-time').textContent = responseTime + 'ms';
+                document.getElementById('model-type').textContent = modelData.ai_model;
+                document.getElementById('model-status').textContent = modelData.status;
+                document.getElementById('detection-methods').textContent = modelData.detection_methods.join(', ');
+                document.getElementById('supported-formats').textContent = modelData.supported_formats.join(', ');
+                document.getElementById('health-json').textContent = JSON.stringify(healthData, null, 2);
+                document.getElementById('model-json').textContent = JSON.stringify(modelData, null, 2);
+                document.getElementById('last-updated').textContent = new Date().toLocaleString('zh-CN');
+            } catch (error) {
+                document.getElementById('service-status').textContent = '连接失败';
+                document.getElementById('service-status').style.color = '#e74c3c';
+            }
+        }
+        function refreshData() {
+            document.getElementById('service-status').textContent = '检测中...';
+            document.getElementById('response-time').textContent = '检测中...';
+            document.getElementById('health-json').textContent = '获取数据中...';
+            document.getElementById('model-json').textContent = '获取数据中...';
+            fetchHealthData();
+        }
+        document.addEventListener('DOMContentLoaded', fetchHealthData);
+        setInterval(fetchHealthData, 30000);
+    </script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
 def test_local_image(image_path: str = "professional_test/front_teeth.jpg"):
     """本地测试函数"""
     if not os.path.exists(image_path):
