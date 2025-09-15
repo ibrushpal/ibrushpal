@@ -1,0 +1,178 @@
+<template>
+  <view class="container">
+    <!-- 分数展示 -->
+    <view class="score-section">
+      <text class="score-title">口腔健康评分</text>
+      <view class="score-circle">
+        <text class="score-value">{{analysis.cleanliness_score}}</text>
+        <text class="score-label">分</text>
+      </view>
+    </view>
+
+    <!-- 雷达图 -->
+    <score-radar :scores="radarData" />
+
+    <!-- 详细分析 -->
+    <view class="analysis-section">
+      <text class="section-title">详细分析</text>
+      <view class="analysis-item">
+        <text class="item-label">清洁度评分</text>
+        <text class="item-value">{{analysis.cleanliness_score}}/100</text>
+      </view>
+      <view class="analysis-item">
+        <text class="item-label">刷牙覆盖率</text>
+        <text class="item-value">{{analysis.brushing_coverage}}%</text>
+      </view>
+      <view class="analysis-item" v-if="analysis.risk_flags.length">
+        <text class="item-label">需要注意的区域</text>
+        <text class="item-value">{{analysis.risk_flags.join('、')}}</text>
+      </view>
+    </view>
+
+    <!-- 个性化建议 -->
+    <view class="recommendation-section">
+      <text class="section-title">个性化建议</text>
+      <text class="recommendation-text">{{analysis.recommendations.text}}</text>
+      
+      <button class="action-btn" @tap="viewAnimation">查看刷牙指导</button>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import ScoreRadar from '@/components/ScoreRadar'
+
+export default class ResultPage extends wepy.page {
+  components = {
+    'score-radar': ScoreRadar
+  }
+
+  data = {
+    analysis: {},
+    radarData: []
+  }
+
+  onLoad(options) {
+    if (options.data) {
+      const result = JSON.parse(decodeURIComponent(options.data))
+      this.analysis = result.analysis_results
+      this.recommendations = result.recommendations
+      
+      // 准备雷达图数据
+      this.radarData = [
+        { name: '清洁度', value: this.analysis.cleanliness_score },
+        { name: '覆盖率', value: this.analysis.brushing_coverage },
+        { name: '工具使用', value: 80 }, // 示例数据
+        { name: '刷牙时长', value: 70 }, // 示例数据
+        { name: '频率', value: 85 }      // 示例数据
+      ]
+    }
+  }
+
+  methods = {
+    viewAnimation() {
+      wx.showModal({
+        title: '刷牙指导动画',
+        content: '将播放个性化刷牙指导动画',
+        success: (res) => {
+          if (res.confirm) {
+            // 调用动画播放
+            this.playBrushingAnimation()
+          }
+        }
+      })
+    },
+
+    playBrushingAnimation() {
+      // 实现动画播放逻辑
+      wx.navigateTo({
+        url: `/pages/animation/animation?id=${this.recommendations.animation_id}`
+      })
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.container {
+  padding: 20px;
+}
+
+.score-section {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .score-title {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+    background: linear-gradient(135deg, #1890ff, #52c41a);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 15px auto;
+    
+    .score-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .score-label {
+      font-size: 14px;
+      color: white;
+    }
+  }
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.analysis-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  
+  .item-label {
+    color: #666;
+  }
+  
+  .item-value {
+    color: #1890ff;
+    font-weight: 500;
+  }
+}
+
+.recommendation-section {
+  margin-top: 30px;
+  
+  .recommendation-text {
+    display: block;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .action-btn {
+    background: #1890ff;
+    color: white;
+    border-radius: 20px;
+  }
+}
+</style>

@@ -40,7 +40,36 @@ export default class CollectPage extends wepy.page {
         title: '您每天刷牙几次？',
         options: ['1次', '2次', '3次及以上']
       },
-      // 更多问题...
+      {
+        id: 2,
+        type: 'radio',
+        title: '每次刷牙时长？',
+        options: ['少于1分钟', '1-2分钟', '2-3分钟', '3分钟以上']
+      },
+      {
+        id: 3,
+        type: 'checkbox',
+        title: '您使用哪些口腔清洁工具？',
+        options: ['普通牙刷', '电动牙刷', '牙线', '冲牙器', '漱口水']
+      },
+      {
+        id: 4,
+        type: 'radio',
+        title: '是否有牙龈出血情况？',
+        options: ['从不', '偶尔', '经常']
+      },
+      {
+        id: 5,
+        type: 'radio',
+        title: '是否有牙齿敏感问题？',
+        options: ['没有', '轻微', '严重']
+      },
+      {
+        id: 6,
+        type: 'radio',
+        title: '最近一次洗牙时间？',
+        options: ['半年内', '1年内', '1-2年', '2年以上', '从未洗过']
+      }
     ],
     formData: {
       answers: {},
@@ -59,9 +88,35 @@ export default class CollectPage extends wepy.page {
       this.$apply()
     },
     
-    handleValidate(valid) {
+    async handleValidate(valid) {
       if (valid) {
-        // 提交数据
+        wx.showLoading({ title: '分析中...' })
+        
+        try {
+          // 调用API进行分析
+          const result = await wx.request({
+            url: 'http://42.194.142.158:8000/analyze',
+            method: 'POST',
+            data: {
+              user_id: wx.getStorageSync('user_id') || 'anonymous',
+              questionnaire: this.formData.answers,
+              photos: this.formData.media.filter(item => item.type === 'image').map(item => item.url),
+              video: this.formData.media.find(item => item.type === 'video')?.url
+            }
+          })
+          
+          wx.hideLoading()
+          
+          if (result.data) {
+            // 跳转到结果页面
+            wx.navigateTo({
+              url: `/pages/result/result?data=${encodeURIComponent(JSON.stringify(result.data))}`
+            })
+          }
+        } catch (error) {
+          wx.hideLoading()
+          wx.showToast({ title: '分析失败', icon: 'error' })
+        }
       }
     }
   }
