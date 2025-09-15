@@ -1,60 +1,110 @@
 # iBrushPal API 部署指南
 
-## 快速启动
+## 服务器状态面板修复部署说明
+
+### 问题描述
+状态面板路由 `/status-dashboard` 返回404错误，需要更新服务器上的API文件。
+
+### 修复内容
+已修复 `teeth_detection_api.py` 文件中的状态面板路由，确保：
+1. 状态面板路由 `/status-dashboard` 正确返回HTML内容
+2. 添加了根路径 `/` 的欢迎页面
+3. 所有HTML内容已内嵌在API文件中
+
+### 手动更新步骤
+
+#### 1. 连接到服务器
 ```bash
-# 给启动脚本添加执行权限
-chmod +x run_api.sh
-
-# 直接运行（前台运行）
-./run_api.sh
-
-# 后台运行
-nohup ./run_api.sh > api.log 2>&1 &
-
-# 查看日志
-tail -f api.log
+ssh ubuntu@42.194.142.158
 ```
 
-## 系统服务部署
+#### 2. 备份当前文件
 ```bash
-# 复制服务配置文件
-sudo cp ibrushpal-api.service /etc/systemd/system/
-
-# 重新加载系统服务
-sudo systemctl daemon-reload
-
-# 启动服务
-sudo systemctl start ibrushpal-api
-
-# 设置开机自启
-sudo systemctl enable ibrushpal-api
-
-# 查看服务状态
-sudo systemctl status ibrushpal-api
-
-# 查看日志
-sudo journalctl -u ibrushpal-api -f
+cd /home/ubuntu/ibrushpal
+cp teeth_detection_api.py teeth_detection_api.py.backup
 ```
 
-## 常用命令
+#### 3. 上传修复后的文件（从本地）
 ```bash
-# 重启服务
+# 在本地终端执行
+scp teeth_detection_api.py ubuntu@42.194.142.158:/home/ubuntu/ibrushpal/
+```
+
+#### 4. 重启API服务
+```bash
 sudo systemctl restart ibrushpal-api
-
-# 停止服务
-sudo systemctl stop ibrushpal-api
-
-# 查看服务日志
-sudo journalctl -u ibrushpal-api -n 100
 ```
 
-## 端口检查
+#### 5. 验证服务状态
 ```bash
-# 检查API是否运行
-netstat -tlnp | grep :8000
-
-# 测试API健康状态
-curl http://localhost:8000/health
+sudo systemctl status ibrushpal-api
 ```
 
-服务启动后，API将在 http://42.194.142.158:8000 持续运行。
+#### 6. 测试状态面板
+访问以下URL验证修复：
+- http://42.194.142.158:8000/status-dashboard
+- http://42.194.142.158:8000/
+
+### 验证修复
+
+#### 预期结果
+1. ✅ 状态面板页面正常显示（不再是404错误）
+2. ✅ 页面包含服务状态监控信息
+3. ✅ 根路径显示欢迎页面
+4. ✅ 所有API端点正常工作
+
+#### 测试端点
+- `/` - 欢迎页面
+- `/status-dashboard` - 状态面板
+- `/health` - 健康检查
+- `/model-info` - 模型信息
+- `/docs` - API文档
+
+### 故障排除
+
+#### 如果服务启动失败
+```bash
+# 查看详细错误日志
+journalctl -u ibrushpal-api -f
+
+# 检查Python依赖
+cd /home/ubuntu/ibrushpal
+python -c "import fastapi, uvicorn, cv2; print('依赖正常')"
+```
+
+#### 如果文件权限问题
+```bash
+sudo chown ubuntu:ubuntu /home/ubuntu/ibrushpal/teeth_detection_api.py
+sudo chmod 644 /home/ubuntu/ibrushpal/teeth_detection_api.py
+```
+
+### 文件变更摘要
+
+#### 修复内容
+1. **添加根路径路由** (`@app.get("/")`)
+   - 返回欢迎页面HTML
+   - 提供主要功能链接
+
+2. **修复状态面板路由** (`@app.get("/status-dashboard")`)
+   - 内嵌完整的HTML内容
+   - 添加JavaScript动态数据获取
+   - 修复HTML语法错误
+
+3. **增强功能**
+   - 实时状态监控
+   - 自动数据刷新（30秒间隔）
+   - 友好的用户界面
+
+#### 技术细节
+- 使用FastAPI的HTMLResponse类
+- 内联CSS和JavaScript
+- 响应式设计
+- 支持移动端访问
+
+### 版本信息
+- **当前版本**: 2.0.0
+- **修复版本**: 2.0.1
+- **更新日期**: 2025/9/15
+
+### 联系方式
+如有问题，请联系技术支持团队。

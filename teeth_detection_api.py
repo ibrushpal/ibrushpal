@@ -345,6 +345,60 @@ async def status_dashboard(request: Request):
 </html>"""
     return HTMLResponse(content=html_content)
 
+@app.get("/")
+async def root():
+    """根路径返回欢迎页面"""
+    return HTMLResponse(content="""
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iBrushPal牙齿检测API</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; }
+        .container { background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-top: 50px; text-align: center; }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 25px; margin: 10px; transition: all 0.3s ease; font-weight: 500; }
+        .btn:hover { background: #5a6fd8; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .feature-list { text-align: left; margin: 30px 0; }
+        .feature { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #27ae60; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦷 iBrushPal牙齿检测API</h1>
+        <p>基于混合方法的智能牙齿检测服务</p>
+        
+        <div style="margin: 30px 0;">
+            <a href="/docs" class="btn">📚 API文档</a>
+            <a href="/status-dashboard" class="btn">📊 状态面板</a>
+            <a href="/health" class="btn">❤️ 健康检查</a>
+        </div>
+        
+        <div class="feature-list">
+            <div class="feature">
+                <strong>🤖 混合检测技术</strong> - 结合深度学习和传统图像处理方法
+            </div>
+            <div class="feature">
+                <strong>⚡ 快速响应</strong> - 单次检测时间小于1秒
+            </div>
+            <div class="feature">
+                <strong>📷 多格式支持</strong> - JPG, JPEG, PNG格式图像
+            </div>
+            <div class="feature">
+                <strong>🔒 安全可靠</strong> - 支持文件大小验证和错误处理
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; color: #7f8c8d; font-size: 14px;">
+            <p>版本 2.0.0 | 服务状态: <span style="color: #27ae60;">✅ 运行中</span></p>
+        </div>
+    </div>
+</body>
+</html>
+""")
+
 def test_local_image(image_path: str = "professional_test/front_teeth.jpg"):
     """本地测试函数"""
     if not os.path.exists(image_path):
