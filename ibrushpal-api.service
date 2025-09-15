@@ -1,0 +1,15 @@
+[Unit]
+Description=iBrushPal Teeth Detection API Service
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/ibrushpal
+Environment=PATH=/home/ubuntu/ibrushpal/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/ubuntu/ibrushpal/.venv/bin/python /home/ubuntu/ibrushpal/teeth_detection_api.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
