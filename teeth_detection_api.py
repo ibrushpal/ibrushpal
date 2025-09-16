@@ -24,7 +24,7 @@ except ImportError:
 
 class TeethDetectionRequest(BaseModel):
     """牙齿检测请求模型"""
-    image_url: str = None
+    # 修改为支持文件上传而不是URL
     use_dl_model: bool = True
     confidence_threshold: float = 0.3
 

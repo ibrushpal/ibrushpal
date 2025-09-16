@@ -52,7 +52,7 @@ def test_preprocessing():
     print("🧪 测试预处理组件...")
     
     try:
-        from teeth_detection.preprocessing import TeethImagePreprocessor
+        from preprocessing.image_enhancer import TeethImagePreprocessor
         
         # 创建测试图像
         test_image = create_test_teeth_image()
@@ -93,7 +93,7 @@ def test_postprocessing():
     print("\n🧪 测试后处理组件...")
     
     try:
-        from teeth_detection.postprocessing import TeethDetectionPostprocessor
+        from preprocessing.postprocessing import TeethDetectionPostprocessor
         
         # 创建模拟检测结果
         test_detections = [
@@ -134,8 +134,8 @@ def test_integration():
     print("\n🧪 测试完整集成流程...")
     
     try:
-        from teeth_detection.inference import TeethDetectionInference
-        from teeth_detection.preprocessing import create_sample_teeth_image
+        from preprocessing.inference import TeethDetectionInference
+        from preprocessing.preprocessing import create_sample_teeth_image
         
         # 创建测试图像
         test_image_data = create_sample_teeth_image()
